@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prudhvi's Productivity App</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #e0eafc;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+    header {
+      background: #6200ea;
+      color: #fff;
+      padding: 10px;
+      text-align: center;
+      font-size: 1.4rem;
+      width: 100%;
+    }
+    #subGreeting {
+      font-size: 1rem;
+      color: #e1bee7;
+    }
+    .nav-buttons {
+      margin: 10px 0;
+      width: 90%;
+      max-width: 500px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+    }
+    .nav-buttons button {
+      padding: 8px 12px;
+      background: #6200ea;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      flex: 1;
+      min-width: 70px;
+    }
+    .nav-buttons button:hover {
+      background: #7b1fa2;
+    }
+    .container {
+      width: 90%;
+      max-width: 500px;
+      margin-bottom: 20px;
+    }
+    .section {
+      background: #fff;
+      border-radius: 6px;
+      margin-bottom: 15px;
+      padding: 15px;
+      display: none;
+    }
+    .section.active {
+      display: block;
+    }
+    h2 {
+      margin: 0 0 8px;
+      font-size: 1.1rem;
+      color: #333;
+    }
+    input[type="text"], select {
+      width: 60%;
+      padding: 8px;
+      margin: 0 8px 8px 0;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 0.8rem;
+    }
+    button.add-btn {
+      padding: 8px 12px;
+      background: #03dac5;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.8rem;
+    }
+    button.add-btn:hover {
+      background: #26a69a;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px;
+      border-bottom: 1px solid #eee;
+    }
+    li:last-child {
+      border-bottom: none;
+    }
+    li button.complete-btn {
+      background: #6200ea;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      cursor: pointer;
+    }
+    li button.complete-btn:disabled {
+      background: #9e9e9e;
+      cursor: not-allowed;
+    }
+    #usernamePrompt {
+      text-align: center;
+      margin-top: 20px;
+    }
+    #usernamePrompt input {
+      width: 60%;
+      padding: 8px;
+      margin-bottom: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    #usernamePrompt button {
+      padding: 8px 15px;
+      background: #6200ea;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.8rem;
+    }
+    #usernamePrompt button:hover {
+      background: #7b1fa2;
+    }
+    .profile-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .profile-avatar {
+      width: 40px;
+      height: 40px;
+      background: #6200ea;
+      color: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      margin-right: 8px;
+    }
+    .profile-info p {
+      margin: 0;
+      font-size: 0.9rem;
+    }
+    .profile-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+      gap: 8px;
+      margin-bottom: 10px;
+      padding: 8px;
+      background: #f9f9f9;
+      border-radius: 4px;
+    }
+    .stat-item {
+      text-align: center;
+      font-size: 0.7rem;
+    }
+    .stat-item strong {
+      display: block;
+      font-size: 0.9rem;
+      color: #6200ea;
+    }
+    .activity-controls {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    .activity-controls button {
+      padding: 6px 12px;
+      background: #6200ea;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.7rem;
+      min-width: 60px;
+    }
+    .activity-controls button.active {
+      background: #bb86fc;
+    }
+    .activity-controls button:hover:not(.active) {
+      background: #7b1fa2;
+    }
+    #profileActivity li {
+      font-size: 0.7rem;
+      color: #444;
+      padding: 6px;
+      border-bottom: 1px solid #eee;
+    }
+    #profileActivity li:last-child {
+      border-bottom: none;
+    }
+    @media (max-width: 600px) {
+      .activity-controls {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .activity-controls button {
+        margin: 4px 0;
+      }
+      .nav-buttons button {
+        min-width: 80px;
+      }
+      input[type="text"], select {
+        width: 100%;
+        margin-bottom: 8px;
+      }
+      .section div {
+        flex-direction: column;
+      }
+      button.add-btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div id="mainGreeting">Prudhvi says Hi! 👋✨</div>
+    <div id="subGreeting"></div>
+  </header>
+
+  <div id="usernamePrompt">
+    <input type="text" id="usernameInput" placeholder="Enter your name">
+    <button id="startButton" onclick="saveUsername()">Start</button>
+  </div>
+
+  <div class="nav-buttons" id="navButtons" style="display:none;">
+    <button id="taskNav">Tasks</button>
+    <button id="habitNav">Habits</button>
+    <button id="reflectionNav">Reflection</button>
+    <button id="profileNav">Profile</button>
+  </div>
+
+  <div class="container" id="mainApp" style="display:none;">
+    <div id="taskSection" class="section active">
+      <h2>To-do Tasks</h2>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <input type="text" id="taskInput" placeholder="Add task">
+        <select id="taskCategory">
+          <option value="Personal">Personal</option>
+          <option value="Work">Work</option>
+          <option value="Other">Other</option>
+        </select>
+        <button class="add-btn" id="addTaskButton">Add</button>
+      </div>
+      <ul id="taskList"></ul>
+    </div>
+
+    <div id="habitSection" class="section">
+      <h2>Habits</h2>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <input type="text" id="habitInput" placeholder="New Habit">
+        <button class="add-btn" id="addHabitButton">Add</button>
+      </div>
+      <ul id="habitList"></ul>
+    </div>
+
+    <div id="reflectionSection" class="section">
+      <h2>Reflection</h2>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <input type="text" id="reflectionInput" placeholder="What's on your mind?">
+        <button class="add-btn" id="addReflectionButton">Add</button>
+        <button class="add-btn" id="exportReflectionButton">Export</button>
+      </div>
+      <ul id="reflectionList"></ul>
+    </div>
+
+    <div id="profileSection" class="section">
+      <h2>Profile</h2>
+      <div class="profile-header">
+        <div class="profile-avatar" id="profileAvatar"></div>
+        <div class="profile-info">
+          <p><strong>User:</strong> <span id="profileName"></span></p>
+        </div>
+      </div>
+      <div class="profile-stats">
+        <div class="stat-item">
+          <strong id="taskCount">0</strong> Tasks Completed
+        </div>
+        <div class="stat-item">
+          <strong id="habitCount">0</strong> Habits Tracked
+        </div>
+        <div class="stat-item">
+          <strong id="reflectionCount">0</strong> Reflections
+        </div>
+      </div>
+      <div class="activity-controls">
+        <button id="filterAll">All</button>
+        <button id="filterTasks">Tasks</button>
+        <button id="filterHabits">Habits</button>
+        <button id="filterReflections">Reflections</button>
+        <button id="clearActivity">Clear</button>
+      </div>
+      <h3>Activity</h3>
+      <ul id="profileActivity"></ul>
+      <button class="add-btn" id="backButton">Back</button>
+    </div>
+  </div>
+
+  <script>
+    let username = '';
+    let tasks = [];
+    let habits = [];
+    let reflections = [];
+    let activities = [];
+    let stats = { taskCount: 0, habitCount: 0, reflectionCount: 0 };
+    let currentFilter = 'all';
+
+    // Load data from localStorage
+    function loadStorage() {
+      try {
+        tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+        habits = JSON.parse(localStorage.getItem('habits')) || [];
+        reflections = JSON.parse(localStorage.getItem('reflections')) || [];
+        activities = JSON.parse(localStorage.getItem('activities')) || [];
+        stats = JSON.parse(localStorage.getItem('stats')) || { taskCount: 0, habitCount: 0, reflectionCount: 0 };
+      } catch (e) {
+        console.log('Error loading localStorage:', e);
+      }
+    }
+
+    // Save data to localStorage
+    function saveData() {
+      try {
+        localStorage.setItem('tasks', JSON.stringify(tasks));
+        localStorage.setItem('habits', JSON.stringify(habits));
+        localStorage.setItem('reflections', JSON.stringify(reflections));
+        localStorage.setItem('activities', JSON.stringify(activities));
+        localStorage.setItem('stats', JSON.stringify(stats));
+      } catch (e) {
+        console.log('Error saving to localStorage:', e);
+      }
+    }
+
+    // Initialize event listeners
+    function init() {
+      console.log('Initializing app');
+      loadStorage();
+      const startButton = document.getElementById('startButton');
+      if (startButton) {
+        startButton.addEventListener('click', saveUsername);
+      } else {
+        console.log('Start button not found');
+      }
+
+      const buttons = [
+        { id: 'taskNav', action: () => switchSection('taskSection') },
+        { id: 'habitNav', action: () => switchSection('habitSection') },
+        { id: 'reflectionNav', action: () => switchSection('reflectionSection') },
+        { id: 'profileNav', action: () => switchSection('profileSection') },
+        { id: 'addTaskButton', action: addTask },
+        { id: 'addHabitButton', action: addHabit },
+        { id: 'addReflectionButton', action: addReflection },
+        { id: 'exportReflectionButton', action: exportReflections },
+        { id: 'filterAll', action: (e) => filterActivity('all', e) },
+        { id: 'filterTasks', action: (e) => filterActivity('task', e) },
+        { id: 'filterHabits', action: (e) => filterActivity('habit', e) },
+        { id: 'filterReflections', action: (e) => filterActivity('reflection', e) },
+        { id: 'clearActivity', action: clearActivity },
+        { id: 'backButton', action: goBack }
+      ];
+
+      buttons.forEach(btn => {
+        const element = document.getElementById(btn.id);
+        if (element) {
+          element.addEventListener('click', btn.action);
+        } else {
+          console.log(`Button ${btn.id} not found`);
+        }
+      });
+
+      // Set default filter button as active
+      const filterAll = document.getElementById('filterAll');
+      if (filterAll) filterAll.classList.add('active');
+    }
+
+    // Save username and show app
+    function saveUsername() {
+      console.log('Start button clicked');
+      const input = document.getElementById('usernameInput');
+      if (!input) {
+        console.log('Username input not found');
+        return;
+      }
+      const name = input.value.trim();
+      if (name === '') {
+        alert('Please enter your name.');
+        return;
+      }
+      username = name;
+      const profileName = document.getElementById('profileName');
+      const profileAvatar = document.getElementById('profileAvatar');
+      const usernamePrompt = document.getElementById('usernamePrompt');
+      const mainApp = document.getElementById('mainApp');
+      const navButtons = document.getElementById('navButtons');
+
+      if (profileName) profileName.textContent = username;
+      if (profileAvatar) profileAvatar.textContent = username.charAt(0).toUpperCase();
+      if (usernamePrompt) usernamePrompt.style.display = 'none';
+      if (mainApp) mainApp.style.display = 'block';
+      if (navButtons) navButtons.style.display = 'flex';
+
+      updateGreeting();
+      loadData();
+    }
+
+    // Update greeting
+    function updateGreeting() {
+      const mainGreeting = document.getElementById('mainGreeting');
+      if (!mainGreeting) return;
+      const name = username.toLowerCase();
+      if (name === 'rachana') {
+        mainGreeting.textContent = 'Hi my love 😘 I\'m Prudhvi';
+      } else if (name === 'ramya' || name === 'kavya') {
+        mainGreeting.textContent = 'Hi Akka 🥰 I\'m Prudhvi';
+      } else if (name === 'shreedhar' || name === 'madhu') {
+        mainGreeting.textContent = 'Hi Annaya 🥰 I\'m Prudhvi';
+      } else {
+        mainGreeting.textContent = 'Prudhvi says Hi! 👋✨';
+      }
+      const now = new Date();
+      const hour = now.getHours();
+      let greeting = 'Good morning';
+      if (hour >= 12 && hour < 17) greeting = 'Good afternoon';
+      else if (hour >= 17) greeting = 'Good evening';
+      const subGreeting = document.getElementById('subGreeting');
+      if (subGreeting) subGreeting.textContent = greeting + '!';
+    }
+
+    // Load data into UI
+    function loadData() {
+      const taskList = document.getElementById('taskList');
+      const habitList = document.getElementById('habitList');
+      const reflectionList = document.getElementById('reflectionList');
+      if (taskList) taskList.innerHTML = '';
+      if (habitList) habitList.innerHTML = '';
+      if (reflectionList) reflectionList.innerHTML = '';
+
+      tasks.forEach(task => addTaskToUI(task.text, task.category));
+      habits.forEach(habit => addHabitToUI(habit.text, habit.streak, habit.lastCompleted));
+      reflections.forEach(ref => addReflectionToUI(ref.text, ref.timestamp));
+      updateActivityUI();
+      updateStatsUI();
+    }
+
+    // Add task
+    function addTask() {
+      const taskInput = document.getElementById('taskInput');
+      const taskCategory = document.getElementById('taskCategory');
+      if (!taskInput || !taskCategory) return;
+      const taskText = taskInput.value.trim();
+      if (taskText === '') return;
+      const task = { text: taskText, category: taskCategory.value };
+      tasks.push(task);
+      addTaskToUI(taskText, taskCategory.value);
+      taskInput.value = '';
+      saveData();
+    }
+
+    // Add task to UI
+    function addTaskToUI(taskText, category) {
+      const taskList = document.getElementById('taskList');
+      if (!taskList) return;
+      const li = document.createElement('li');
+      li.textContent = taskText + ' [' + category + ']';
+      const btn = document.createElement('button');
+      btn.textContent = '✔';
+      btn.className = 'complete-btn';
+      btn.onclick = function() {
+        li.remove();
+        tasks = tasks.filter(t => t.text !== taskText || t.category !== category);
+        stats.taskCount++;
+        logActivity('Completed task: ' + taskText + ' [' + category + ']', 'task');
+        updateStatsUI();
+        saveData();
+      };
+      li.appendChild(btn);
+      taskList.appendChild(li);
+    }
+
+    // Add habit
+    function addHabit() {
+      const habitInput = document.getElementById('habitInput');
+      if (!habitInput) return;
+      const habitText = habitInput.value.trim();
+      if (habitText === '') return;
+      const habit = { text: habitText, streak: 0, lastCompleted: null };
+      habits.push(habit);
+      addHabitToUI(habitText, 0, null);
+      habitInput.value = '';
+      saveData();
+    }
+
+    // Add habit to UI
+    function addHabitToUI(habitText, streak, lastCompleted) {
+      const habitList = document.getElementById('habitList');
+      if (!habitList) return;
+      const li = document.createElement('li');
+      li.textContent = habitText + ' (Streak: ' + streak + ')';
+      const doneBtn = document.createElement('button');
+      doneBtn.textContent = '❌';
+      doneBtn.className = 'complete-btn';
+      const now = new Date();
+      const today = now.toISOString().split('T')[0];
+      if (lastCompleted === today) {
+        doneBtn.disabled = true;
+        doneBtn.textContent = '✔';
+      }
+      doneBtn.onclick = function() {
+        if (doneBtn.disabled) return;
+        const habit = habits.find(h => h.text === habitText);
+        if (habit && habit.lastCompleted !== today) {
+          habit.streak++;
+          habit.lastCompleted = today;
+          stats.habitCount++;
+          li.textContent = habitText + ' (Streak: ' + habit.streak + ')';
+          li.appendChild(doneBtn);
+          logActivity('Habit done: ' + habitText + ' (Streak: ' + habit.streak + ') at ' + now.toLocaleString(), 'habit');
+          doneBtn.disabled = true;
+          doneBtn.textContent = '✔';
+          updateStatsUI();
+          saveData();
+        }
+      };
+      li.appendChild(doneBtn);
+      habitList.appendChild(li);
+    }
+
+    // Add reflection
+    function addReflection() {
+      const reflectionInput = document.getElementById('reflectionInput');
+      if (!reflectionInput) return;
+      const reflectionText = reflectionInput.value.trim();
+      if (reflectionText === '') return;
+      const now = new Date();
+      const reflection = { text: reflectionText, timestamp: now.toLocaleString() };
+      reflections.push(reflection);
+      addReflectionToUI(reflectionText, reflection.timestamp);
+      stats.reflectionCount++;
+      logActivity('Reflection added.', 'reflection');
+      reflectionInput.value = '';
+      updateStatsUI();
+      saveData();
+    }
+
+    // Add reflection to UI
+    function addReflectionToUI(reflectionText, timestamp) {
+      const reflectionList = document.getElementById('reflectionList');
+      if (!reflectionList) return;
+      const li = document.createElement('li');
+      li.textContent = reflectionText + ' — ' + timestamp;
+      reflectionList.appendChild(li);
+    }
+
+    // Export reflections
+    function exportReflections() {
+      try {
+        const content = reflections.map(ref => ref.text + ' — ' + ref.timestamp).join('\n');
+        const blob = new Blob([content], { type: 'text/plain' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'reflections.txt';
+        a.click();
+        window.URL.revokeObjectURL(url);
+      } catch (e) {
+        console.log('Error exporting reflections:', e);
+        alert('Export failed. Try in a browser.');
+      }
+    }
+
+    // Log activity
+    function logActivity(text, type) {
+      activities.push({ text: text, type: type, timestamp: new Date().toLocaleString() });
+      updateActivityUI();
+      saveData();
+    }
+
+    // Update activity UI
+    function updateActivityUI() {
+      const activityList = document.getElementById('profileActivity');
+      if (!activityList) return;
+      activityList.innerHTML = '';
+      activities
+        .filter(activity => currentFilter === 'all' || activity.type === currentFilter)
+        .forEach(activity => {
+          const li = document.createElement('li');
+          li.textContent = activity.text + ' — ' + activity.timestamp;
+          activityList.appendChild(li);
+        });
+    }
+
+    // Update stats UI
+    function updateStatsUI() {
+      const taskCount = document.getElementById('taskCount');
+      const habitCount = document.getElementById('habitCount');
+      const reflectionCount = document.getElementById('reflectionCount');
+      if (taskCount) taskCount.textContent = stats.taskCount;
+      if (habitCount) habitCount.textContent = stats.habitCount;
+      if (reflectionCount) reflectionCount.textContent = stats.reflectionCount;
+    }
+
+    // Filter activity
+    function filterActivity(type, event) {
+      currentFilter = type;
+      const buttons = document.querySelectorAll('.activity-controls button');
+      buttons.forEach(btn => btn.classList.remove('active'));
+      if (event.target) event.target.classList.add('active');
+      updateActivityUI();
+    }
+
+    // Clear activity
+    function clearActivity() {
+      activities = [];
+      updateActivityUI();
+      saveData();
+    }
+
+    // Switch section
+    function switchSection(sectionId) {
+      const sections = document.querySelectorAll('.section');
+      sections.forEach(section => section.classList.remove('active'));
+      const targetSection = document.getElementById(sectionId);
+      if (targetSection) targetSection.classList.add('active');
+    }
+
+    // Go back to tasks
+    function goBack() {
+      switchSection('taskSection');
+    }
+
+    // Initialize when DOM is ready
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
